@@ -1,0 +1,12 @@
+#!/bin/sh
+## CP_USER= #$RUN_AS, username to run couchpotato under, the default is couchpotato
+## CP_HOME= #$APP_PATH, the location of couchpotato.py, the default is /opt/couchpotato
+## CP_DATA= #$DATA_DIR, the location of couchpotato.db, cache, logs, the default is /var/couchpotato
+## CP_PIDFILE= #$PID_FILE, the location of couchpotato.pid, the default is /var/run/couchpotato.pid
+## PYTHON_BIN= #$DAEMON, the location of the python binary, the default is /usr/bin/python
+## CP_OPTS= #$EXTRA_DAEMON_OPTS, extra cli option for couchpotato, i.e. " --config_file=/home/couchpotato/couchpotato.ini"
+## SSD_OPTS= #$EXTRA_SSD_OPTS, extra start-stop-daemon option like " --group=users"
+
+CP_USER=root
+CP_DATA=/data/
+CP_OPTS=" --config=/data/.docker-usenet-pack/couchpotato.ini"
