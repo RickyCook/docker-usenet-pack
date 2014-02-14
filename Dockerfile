@@ -16,3 +16,5 @@ RUN SB_COMMIT=6e251929903d6f81d988fe25c5c451756d34ffd1 CP_COMMIT=2cfff73486ffb48
 
 VOLUME ["/data"]
 EXPOSE 8080
+
+ENTRYPOINT=/opt/docker-usenet-pack/start.sh
