@@ -1,7 +1,6 @@
 #!/bin/sh
 
 #
-# Clone Sickbeard and CouchPotato
 # Checkout correct revisions
 # Link init scripts
 # Link defaults
@@ -10,9 +9,6 @@
 TOOL_DIR=/opt/docker-usenet-pack
 SB_DIR=/opt/sickbeard
 CP_DIR=/opt/couchpotato
-
-git clone https://github.com/midgetspy/Sick-Beard.git "$SB_DIR"
-git clone https://github.com/RuudBurger/CouchPotatoServer.git "$CP_DIR"
 
 cd "$SB_DIR"
 git checkout $SB_COMMIT
