@@ -1,48 +1,78 @@
 #!/usr/bin/python
-import sys
-from colorama import Fore, Style
+import locale, sys, traceback
+
+from cStringIO import StringIO
+from dialog import Dialog
 
 sys.path.extend((
 	'/usr/share/sabnzbdplus/',
 ))
 
 from sabnzbd.config import read_config as sab_read_config
-from sabnzbd import cfg as sab_config
+from sabnzbd import cfg as sab_config, config as sab_config_options
 
-FS_TITLE = "{fore}{{}}{reset}".format(fore=Fore.YELLOW, reset=Style.RESET_ALL)
-FS_DEFAULT = "[{fore}{{}}{reset}]".format(fore=Fore.WHITE + Style.BRIGHT, reset=Style.RESET_ALL)
-FS_QUESTION = "{fore}{{}}{reset}{{}}: ".format(fore=Fore.GREEN, reset=Style.RESET_ALL)
+DIALOG_DEFAULTS = {'height': 8, 'width': 80}
+BIG_DIALOG_DEFAULTS = dict(DIALOG_DEFAULTS.items() + [('height', 35)])
 
-def title(text):
-	print FS_TITLE.format(text)
+def init_val(current, default):
+	if not current:
+		return default
 
-def question_display(text, current=None, default=None):
-	if current:
-		default_text = FS_DEFAULT.format(current)
-	elif default:
-		default_text = FS_DEFAULT.format(default)
+
+def show_dialog(name, default, input_method, required=True, **kwargs):
+	while True:
+		cancelled, value = d.inputbox(name, init=default, **kwargs)
+
+		if not value:
+			cancelled = True
+
+		if cancelled and required:
+			d.msgbox("This field is required", title="Required", **DIALOG_DEFAULTS)
+		else:
+			return value
+
+
+def sab_config_question(name, field, default='', required=True, **kwargs):
+	if isinstance(field, sab_config_options.OptionPassword):
+		input_method = d.passwordbox
+		current_value = ''
 	else:
-		default_text = ''
+		input_method = d.inputbox
 
-	print FS_QUESTION.format(text, default_text),
+		current_value = field.get_string()
+		if not current_value:
+			current_value = default
 
-def question(text, current=None, default=None):
-	question_display(text, current, default)
-	val = sys.stdin.readline()
+	while True:
+		value = show_dialog(name, current_value, input_method, required, **kwargs)
+		if input_method == d.passwordbox:
+			repeat_value = show_dialog("%s (Again)" % name, '', input_method, True, **kwargs)
+			if repeat_value != value:
+				d.msgbox("Passwords do not match")
+			else:
+				break
+		else:
+			break
 
-	if not val:
-		if current:
-			return current
-		elif default:
-			return default
+	# Set the value
 
-	return val
 
-# Load config
-sab_read_config('/etc/sabnzbd/sabnzbd.ini')
+locale.setlocale(locale.LC_ALL, '')
+d = Dialog(dialog="dialog")
+d.setBackgroundTitle("Docker Usenet Pack - First Run")
 
-# General configuration
-title('General')
-username = question('UI Username', sab_config.username.get_string(), 'admin')
-password = question('UI Password')
-#import ipdb; ipdb.set_trace()
+try:
+	# Load config
+	sab_read_config('/etc/sabnzbd/sabnzbd.ini')
+
+	section_defaults = dict(DIALOG_DEFAULTS.items() + [('title', 'UI Configuration')])
+	sab_config_question("Username", sab_config.username, "admin", True, **section_defaults)
+	sab_config_question("Password", sab_config.password, required=True, **section_defaults)
+
+except Exception:
+	e_out = traceback.format_exc()
+	kwargs = dict(BIG_DIALOG_DEFAULTS.items() + [
+		('height', min(BIG_DIALOG_DEFAULTS['height'], e_out.count("\n") + 4))
+	])
+	d.scrollbox(e_out, title="Unexpected Error", **kwargs)
+
