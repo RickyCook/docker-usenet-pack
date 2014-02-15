@@ -7,7 +7,7 @@ MAINTAINER Ricky Cook, mail@thatpanda.com
 
 # Add the sources, update and install
 ADD https://github.com/RickyCook/docker-usenet-pack/raw/245d23a21ecefbca834283fcc73d5068b8d3d35e/sources.list /etc/apt/sources.list
-RUN apt-get update && apt-get install -y sabnzbdplus sabnzbdplus-theme-mobile sabnzbdplus-theme-iphone git
+RUN apt-get update && apt-get install -y sabnzbdplus sabnzbdplus-theme-mobile sabnzbdplus-theme-iphone git python-colorama
 
 # Clone and checkout tools, sickbeard, couchpotato
 RUN git clone https://github.com/midgetspy/Sick-Beard.git /opt/sickbeard && git clone https://github.com/RuudBurger/CouchPotatoServer.git /opt/couchpotato
